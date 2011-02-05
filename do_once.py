@@ -1,5 +1,5 @@
 # Do Once Function Decorator
-# Copyright (c) 2011, Matthew Goodman
+# Copyright (c) 2011, Matthew Goodman - Goodman Consulting
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -11,15 +11,15 @@
 #    documentation and/or other materials provided with the distribution.
 # 3. All advertising materials mentioning features or use of this software
 #    must display the following acknowledgement:
-#    This product includes software developed by the <organization>.
-# 4. Neither the name of the <organization> nor the
+#    This product includes software developed by Goodman Consulting.
+# 4. Neither the name of the Goodman Consulting nor the
 #    names of its contributors may be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 
-# THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY
+# THIS SOFTWARE IS PROVIDED BY Matthew Goodman ''AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DISCLAIMED. IN NO EVENT SHALL Matthew Goodman BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -29,14 +29,24 @@
 import os, numpy, pickle, hashlib
 
 class DoOnce:
-    def __init__(self, dec_f):
+    def __init__(self, dec_f, temp_file_folder="/tmp/doonce-cache"):
+        # Keep a handle to the decorated function
         self.f = dec_f
-        print "In Init"
+
+        # Record where the data will be cached
+        self.temp_file_folder = temp_file_folder
+
+        # Check to see that the folder exits, if not create it
+        if not os.path.isdir(temp_file_folder):
+            os.mkdir(temp_file_folder)
+
 
     def __call__(self, *args, **kwargs):
+        # Look for queues to do the function over or debug print
         doover = kwargs.pop("do_over", False)
         debug  = kwargs.pop("do_debug", False)
 
+        # Initilaize a md5 hash
         md5 = hashlib.md5()
             
         # Figure out what we would save it as . . .
@@ -51,8 +61,8 @@ class DoOnce:
             raise RuntimeError("Cache String Too Long")
 
         # Different file names for numpy arrays and pkls
-        pkl_file = os.path.join(".doonce-cache/", cache_string + ".pkl")
-        npy_file = os.path.join(".doonce-cache/", cache_string + ".npy")
+        pkl_file = os.path.join(self.temp_file_folder, cache_string + ".pkl")
+        npy_file = os.path.join(self.temp_file_folder, cache_string + ".npy")
 
         # Look for an already computed the result
         # We dont know if it will be a npy or pkl so check both
@@ -62,7 +72,7 @@ class DoOnce:
         if os.path.isfile(npy_file) and doover == False:
             if debug: print "Previous NPY found:", npy_file
             return numpy.load(npy_file)
-        print "No previous result found, or redoing. . ."
+        if debug: print "No previous result found, or redoing. . ."
 
         # I guess we didnt compute the result, or we are recomputing it . . .
         if debug: print "Computing Result . . ."
