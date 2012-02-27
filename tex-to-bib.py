@@ -1,15 +1,34 @@
-import urllib, time
-from pyparsing import *
+#!/usr/bin/env python -c
+'''This is a program to scrape a tex/latex document for bibitems, and search and assemble the proper cross ref from inspires.
+To use it, specify two command line arguments: 
+   The input file  (-i)
+   The output file (-o)
+
+Example:
+  ./tex-to-bib.py -i somefile.tex -o someotherfile.bib
+'''
+import urllib, time, sys
 from urllib import urlopen, urlencode
 from optparse import OptionParser
 
+try:
+    from pyparsing import *
+except ImportError:
+    print "pyparsing is a required module for this programs operation!"
+    print "Please: $sudo apt-get install python-pyparsing"
+
 parser = OptionParser()
-parser.add_option("-i", "--input", dest="in_filename", help="File to analyze")
-parser.add_option("-o", "--output", dest="out_filename", help="File to save to")
+parser.add_option("-i", "--input", dest="in_filename", help="File to analyze", default=None)
+parser.add_option("-o", "--output", dest="out_filename", help="File to save to", default=None)
 parser.add_option("-f", "--full", action="store_true", dest="full", default=False, help="Require full bib-time match")
+parser.epilog = __doc__
 
 (options, args) = parser.parse_args()
 
+
+if options.in_filename == None or options.out_filename == None:
+    parser.print_help()
+    sys.exit(0)
 
 # Definition of the bibitem stuff
 label = Word(nums + alphas + ":.")
