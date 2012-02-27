@@ -1,4 +1,4 @@
-#!/usr/bin/env python -c
+#!/usr/bin/env python
 '''This is a program to scrape a tex/latex document for bibitems, and search and assemble the proper cross ref from inspires.
 To use it, specify two command line arguments: 
    The input file  (-i)
