@@ -1,4 +1,4 @@
-# Do Once Function Decorator
+o# Do Once Function Decorator
 # Copyright (c) 2011, Matthew Goodman - Goodman Consulting
 # All rights reserved.
 
@@ -53,6 +53,7 @@ class DoOnce:
         # make a hash on the args and kwargs
         arg_strings  = [str(a) for a in args] 
         arg_strings += [ str(k) + "=" + str(v) for k, v in kwargs.iteritems() ]
+        arg_strings += [self.f.func_code.co_code]
         md5.update( ".".join(arg_strings) )
         cache_string = self.f.func_name + "-" + md5.hexdigest()  
         
